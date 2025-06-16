@@ -109,8 +109,8 @@ spec:
           platform: ${{ parameters.platform }}
           sourceControl: github.com
 
-    - id: catalogTemplate
-      name: Generating the Catalog Info Component
+    - id: catalogTemplate-app
+      name: Generating the Catalog Info Component for the code
       action: fetch:template
       input:
         url: ../../../skeletons/catalog-info/
@@ -118,6 +118,27 @@ spec:
         values:
           orgName: ${{ parameters.orgName }}
           repoName: ${{ parameters.repoName }}
+          owner: ${{ parameters.owner }}
+          system: ${{ parameters.system }}
+          applicationType: api
+          description: ${{ parameters.description }}
+          namespace: ${{ parameters.namespace }}-platform
+          imageUrl: ${{ parameters.imageUrl }}
+          imageBuilder: s2i-go
+          imageRepository: ${{ parameters.imageRepository }}
+          port: ${{ parameters.port }}
+          ci: ${{ parameters.ci }}
+          sourceControl: github.com
+
+    - id: catalogTemplate-platform
+      name: Generating the Catalog Info Component for the platform
+      action: fetch:template
+      input:
+        url: ../../../skeletons/catalog-info/
+        targetPath: ./platform
+        values:
+          orgName: ${{ parameters.orgName }}
+          repoName: ${{ parameters.repoName }}-platform
           owner: ${{ parameters.owner }}
           system: ${{ parameters.system }}
           applicationType: api
@@ -150,19 +171,29 @@ spec:
         defaultBranch: main
         sourcePath: ./platform
 
-    - id: register
-      name: Registering the Catalog Info Component
+    - id: register-app
+      name: Registering the Catalog Info Component for the code
       action: catalog:register
       input:
         repoContentsUrl: ${{ steps['publish-app'].output.repoContentsUrl }}
         catalogInfoPath: /catalog-info.yaml
 
+    - id: register-app
+      name: Registering the Catalog Info Component for the code
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish-platform'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
   output:
     links:
       - title: Open the Source Code Repository
-        url: ${{ steps.publish-app.output.remoteUrl }}
+        url: ${{ steps['publish-app'].output.remoteUrl }}
       - title: Open the Platform Code Repository
-        url: ${{ steps.publish-platform.output.remoteUrl }}
-      - title: Open the Catalog Info Component
+        url: ${{ steps['publish-platform'].output.remoteUrl }}
+      - title: Open the Catalog Info Component for the code
         icon: catalog
-        entityRef: ${{ steps.register.output.entityRef }}
+        entityRef: ${{ steps['register-app'].output.entityRef }}
+      - title: Open the Catalog Info Component for the platform
+        icon: catalog
+        entityRef: ${{ steps['register-platform'].output.entityRef }}
