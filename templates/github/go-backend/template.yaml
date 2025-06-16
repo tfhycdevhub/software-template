@@ -178,8 +178,8 @@ spec:
         repoContentsUrl: ${{ steps['publish-app'].output.repoContentsUrl }}
         catalogInfoPath: /catalog-info.yaml
 
-    - id: register-app
-      name: Registering the Catalog Info Component for the code
+    - id: register-platform
+      name: Registering the Catalog Info Component for the platform
       action: catalog:register
       input:
         repoContentsUrl: ${{ steps['publish-platform'].output.repoContentsUrl }}
